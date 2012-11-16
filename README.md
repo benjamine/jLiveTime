@@ -15,10 +15,10 @@ Features
 - Use different formatting for element html and tooltip
 - Milliseconds accuracy
 - To handles client clocks out of sync jLiveTime can perform an ajax request and use Date http response header. Server-to-Local offset is cached on sessionStorage (fallback to session cookie)
-- jQuery event 'refreshComplete' allows you to add visual effects (check [DEMO](http://benjamine.github.com/jLiveTime/demo/index.html))
+- jQuery event 'refreshComplete' allows you to add visual effects (check [DEMO](http://benjamine.github.com/jLiveTime/demo/demo.html))
 
 -----
-**[DEMO](http://benjamine.github.com/jLiveTime/demo/index.html)**
+**[DEMO](http://benjamine.github.com/jLiveTime/demo/demo.html)**
 -----
 -----
 
