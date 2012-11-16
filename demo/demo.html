@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>jLiveTime Demo</title>
+        <meta name="description" content="jLiveTime Demo">
+        <link rel="stylesheet" href="style.css">
+        <script src="../vendor/jquery-1.8.2.js"></script>
+        <script src="../src/jlivetime.js"></script>
+    </head>
+    <body>
+        <a href="https://github.com/benjamine/jLiveTime" id="fork_me">
+            <img alt="Fork me on GitHub" src="http://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png">
+        </a>
+        <h1>jLiveTime Demo</h1>
+        <div class="controlpanel">
+            <a href="demo">reset</a>
+            <a class="timestop" href="javascript:void(0);">stop</a>
+            <div class="addtime">
+                <span>add</span>
+                <a href="javascript:void(0);" data-seconds="1">1 second</a>
+                <a href="javascript:void(0);" data-seconds="60">1 minute</a>
+                <a href="javascript:void(0);" data-seconds="3600">1 hour</a>
+                <a href="javascript:void(0);" data-seconds="86400">1 day</a>
+                <a href="javascript:void(0);" data-seconds="2592000">1 month</a>
+            </div>
+            <div class="addtime">
+                <span>substract</span>                
+                <a href="javascript:void(0);" data-seconds="-1">1 second</a>
+                <a href="javascript:void(0);" data-seconds="-60">1 minute</a>
+                <a href="javascript:void(0);" data-seconds="-3600">1 hour</a>
+                <a href="javascript:void(0);" data-seconds="-86400">1 day</a>
+                <a href="javascript:void(0);" data-seconds="-2592000">1 month</a>
+            </div>
+        </div>
+        <div class="examples">
+            <div>
+                <time data-time-label="#fulldate" data-time-tooltip>loading</time>
+            </div>
+            <div>
+                <time data-time-label="#shortdate" data-time-tooltip>loading</time>
+            </div>
+            <div>
+                <time data-time-label="eeee d at H:mm" data-time-tooltip>loading</time>
+            </div>
+            <div>
+                <time data-time-tooltip>
+                    <span data-time-label="#in"></span>
+                    <span data-time-label="td_h" class="number"></span> hours, 
+                    <span data-time-label="d_mm" class="number"></span> minutes
+                    <span data-time-label="d_ss" class="number"></span> seconds
+                    <span data-time-label="#ago"></span>
+                </time>
+            </div>
+            <div>
+                <time data-time-label data-time-tooltip>loading</time>
+            </div>
+            <div>
+                <time data-time-label="#humanized" data-time-tooltip>loading</time>
+            </div>
+            <div>
+                <time data-time-label="#milliseconds" data-time-tooltip>loading</time>
+            </div>
+            <div>
+                <time data-time-label="#custom" data-time-tooltip>loading</time>
+            </div>
+            <div>
+                <time data-time-label="#custom2" data-time-tooltip>loading</time>
+            </div>
+            <div>
+                <time data-time-label="#custom3" data-time-tooltip>loading</time>
+            </div>
+        </div>
+        <div class="localtimeoffsetinfo">
+            your machine clock is <span class="localtimeoffsetseconds">0</span> seconds off
+        </div>
+        <script type="text/javascript">
+            $(function() {
+
+                $.livetime.options.serverTimeUrl = 'empty.txt';
+
+                $.livetime.options.formats.custom = [
+                    [-120, 'td_m minutes remaining'],
+                    [-30, 'td_s seconds remaining'],
+                    [-15, 'in a moment'],
+                    [-5, 'td_s seconds remaining'],
+                    [-4, 'Four!'],
+                    [-3, '<b>THREE!</b>'],
+                    [-2, '<b>TWO!</b>'],
+                    [-1, '<b>ONE!</b>'],
+                    [0, '<big><b>ZERO!</b></big>'],
+                    [3, 'Preparing'],
+                    [5, 'Almost ready'],
+                    [10, 'Working'],
+                    [14, 'Almost complete'],
+                    ['Completed']
+                ];
+
+                var bars = [];
+                for (var i=-30; i<30; i++) {
+                    bars.push([i, new Array(Math.abs(i)).join(i>0 ? '*':'#')]);
+                }
+                bars.push(['END']);
+                $.livetime.options.formats.custom2 = bars;
+
+                $.livetime.options.formats.custom3 = [
+                    [0, 'Upcoming'],
+                    ['Done']
+                ];
+
+                // set all timestamp to 20s in the futute
+                $('time').attr('datetime', new Date().getTime()+20000
+                    -new Date().getTimezoneOffset()*60000);
+
+                $('.examples').on('refreshComplete', function(e, data){
+                    if (data.htmlChanged && data.nextRefreshMs > 100) {
+                        var root = $(e.target);
+                        var labels = root.find('[data-time-label]');
+                        if (root.is('[data-time-label]')) {
+                            labels = labels.add(root);
+                        }
+                        labels.addClass('timer-tick');
+                            setTimeout(function(){
+                                labels.removeClass('timer-tick');
+                            },80);
+                    }
+                    if ($.livetime.localTimeOffset) {
+                        $('.localtimeoffsetseconds').text(Math.floor($.livetime.localTimeOffset/1000));
+                    }
+                    
+                });
+
+                $('.examples').livetime();
+
+                $('.addtime a').click(function(){
+                    $('time').attr('datetime', parseInt($('time').attr('datetime')||0) +
+                        parseInt($(this).data('seconds'))*1000);
+                    $('.examples').livetime();
+                });
+                $('.timestop').click(function(){
+                    $('.examples').livetime(false);
+                });
+            });
+        </script>
+        <footer>
+            <a href="https://github.com/benjamine/jLiveTime">Download jLiveTime</a><br>
+        </footer>
+    </body>
+</html>

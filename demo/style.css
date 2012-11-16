@@ -1,0 +1,54 @@
+
+body {
+    font-family: Georgia, serif;
+}
+
+h1 {
+    margin: 30px;
+}
+
+a#fork_me {
+    position: absolute;
+    top: 0;
+    right: 0;
+}
+
+.controlpanel a {
+	display: inline-block;
+	padding: 4px;
+	text-decoration: none;
+}
+.controlpanel a:hover {
+	text-decoration: underline;
+}
+
+.addtime > span {
+	display: inline-block;
+	width: 80px;
+}
+.examples > div {
+	margin: 10px;
+}
+
+.examples time {
+	padding: 4px;
+}
+
+.timer-tick[data-time-label] {
+	background: #7fa;
+}
+
+time .number {
+	font: bold 2em monospace;
+}
+
+.localtimeoffsetinfo {
+	padding: 30px 0;
+	font-size: small;
+}
+
+footer {
+    font-size: small;
+    text-align: center;
+    margin: 40px;
+}
