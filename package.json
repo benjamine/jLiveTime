@@ -1,6 +1,6 @@
 {
   "name": "jlivetime",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "author": "Benjamin Eidelman <beneidel@gmail.com>",
   "description": "jQuery plugin for live timestamps, countdowns, time-ago, and timers",
   "contributors": [

@@ -34,6 +34,10 @@ a#fork_me {
 	padding: 4px;
 }
 
+.examples .removedatetime {
+	font-size: small;
+}
+
 .timer-tick[data-time-label] {
 	background: #7fa;
 }

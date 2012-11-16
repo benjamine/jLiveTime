@@ -26,6 +26,13 @@ Requirements
 -----------------
 
 - jQuery 1.8+
+- 
+Supported Platforms
+-----------------
+
+Tested on IE8-9, Chrome, Firefox, Safari and Mobile Safari.
+
+Unit testing is not implemented yet. You can try it on your browser visiting [DEMO](http://benjamine.github.com/jLiveTime/demo/demo.html
 
 Installation
 -----------------
@@ -121,6 +128,8 @@ Then you can use it like this:
 	<time datetime="2012-11-15T18:23Z" data-time-label="#shortDate" data-time-tooltip="#fullDate"/>
 
 ```
+
+When no format is specified _default and _default_tooltip formats are used.
 
 ### Per-range Named formats
 

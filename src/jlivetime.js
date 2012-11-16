@@ -6,7 +6,7 @@
 (function($){
 
     var lt = $.livetime = $.livetime || {};
-    lt.version = '0.0.2';
+    lt.version = '0.0.3';
 
     lt.localTimeOffset = null;
     var options = lt.options = lt.options || {};
@@ -16,7 +16,7 @@
     options.triggerRefreshComplete = true;
     options.serverTimeUrl = null; //'empty.txt';
     options.formats = options.formats || {};
-    options.formats.default = options.formats.default || [
+    options.formats._default = options.formats._default || [
         [-24*3600*30*11, 'yyyy MMMM d at H:mm'],
         [-24*3600*30, 'in td_M months d_d days, MMMM d at H:mm'],
         [-24*3600*7, 'in td_d days, MMMM d at H:mm'],
@@ -63,8 +63,8 @@
     ];
     options.formats.fulldate = options.formats.fulldate || 'eee MMM d yyyy at h:mm:ss tt';
     options.formats.shortdate = options.formats.shortdate || 'MMM d yyyy';
-    options.formats.default_tooltip = options.formats.fulldate;
-    options.formats.in = options.formats.in || [[0,'in'],['']];
+    options.formats._default_tooltip = options.formats.fulldate;
+    options.formats._in = options.formats._in || [[0,'in'],['']];
     options.formats.remaining = options.formats.remaining || [[0,'remaining'],['']];
     options.formats.ago = options.formats.ago || [[0,''],['ago']];
     options.formats.elapsed = options.formats.elapsed || [[0,''],['elapsed']];
@@ -238,7 +238,7 @@
                         var label = $(this);
                         var htmlChanged = false;
                         var tooltipChanged = false;
-                        var formatResult = lt.format(ts, timeDiff, label.data('time-label') || '#default');
+                        var formatResult = lt.format(ts, timeDiff, label.data('time-label') || '#_default');
                         if (formatResult.value !== null && typeof formatResult.value !== 'undefined') {
                             if (label.html()!==formatResult.value) {
                                 label.html(formatResult.value);
@@ -250,7 +250,7 @@
                             tsNextRefreshMs = Math.min(tsNextRefreshMs, formatResult.nextRefreshMs);
                         }
                         if (typeof label.data('time-tooltip') !== 'undefined') {
-                            formatResult = lt.format(ts, timeDiff, label.data('time-tooltip') || '#default_tooltip');
+                            formatResult = lt.format(ts, timeDiff, label.data('time-tooltip') || '#_default_tooltip');
                             if (formatResult.value !== null && typeof formatResult.value !== 'undefined') {
                                 if (label.attr('title') !== formatResult.value) {
                                     label.attr('title', formatResult.value);
