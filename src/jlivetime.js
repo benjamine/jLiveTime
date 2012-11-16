@@ -6,7 +6,7 @@
 (function($){
 
     var lt = $.livetime = $.livetime || {};
-    lt.version = '0.0.1';
+    lt.version = '0.0.2';
 
     lt.localTimeOffset = null;
     var options = lt.options = lt.options || {};
@@ -118,7 +118,7 @@
     };
 
     var log = (window.console && typeof window.console.log == 'function') ?
-            function(){ console.call(console, arguments); } :
+            function(){ console.log.call(console, arguments); } :
             function(){};
 
     lt.now = function(){
