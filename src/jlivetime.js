@@ -6,12 +6,13 @@
 (function($){
 
     var lt = $.livetime = $.livetime || {};
-    lt.version = '0.0.3';
+    lt.version = '0.0.4';
 
     lt.localTimeOffset = null;
     var options = lt.options = lt.options || {};
     options.datetimeSelector = '[datetime]';
     options.datetimeAttribute = 'datetime';
+    options.durationAttribute = 'data-duration';
     options.dateLabelSelector = '[data-time-label]';
     options.triggerRefreshComplete = true;
     options.serverTimeUrl = null; //'empty.txt';
@@ -98,7 +99,7 @@
         // seconds
         s: 1000,
         // milliseconds
-        f: 1,
+        f: 1
     };
 
     var parentTimeUnits = {
@@ -109,12 +110,12 @@
         h: 'd',
         m: 'h',
         s: 'm',
-        f: 's',
+        f: 's'
     };
 
     var unitNames = {
         M: ['January','February','March','April','May','June','July','August','September','October','November','December'],
-        e: ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'],
+        e: ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday']
     };
 
     var log = (window.console && typeof window.console.log == 'function') ?
@@ -149,7 +150,11 @@
             if (window.sessionStorage) {
                 storedOffset = window.sessionStorage.getItem('jlivetime-localtimeoffset');
             } else {
-                storedOffset = /localtimeoffset=([0-9]+)[^0-9]?/i.exec(document.cookie)[1];
+                try {
+                    storedOffset = /localtimeoffset=([0-9]+)[^0-9]?/i.exec(document.cookie)[1];
+                } catch (err) {
+                    storedOffset = null;
+                }
             }
 
             if (typeof storedOffset !='undefined' && storedOffset !== null) {
@@ -229,6 +234,17 @@
                 }
                 if (ts > 0) {
                     var timeDiff = lt.millisecondsFromNow(ts);
+                    var duration = 0;
+                    try {
+                        var durationString = tsElem.attr(options.durationAttribute);
+                        if (durationString) {
+                            duration = parseInt(durationString, 10);
+                        }
+                    } catch (err) {
+                        // error parsing timestamp
+                        log('error parsing duration: '+err);
+                        duration = 0;
+                    }
                     tsElem.data('time-diff', timeDiff);
                     var labels = tsElem.find(options.dateLabelSelector);
                     if (tsElem.is(options.dateLabelSelector)) {
@@ -238,7 +254,7 @@
                         var label = $(this);
                         var htmlChanged = false;
                         var tooltipChanged = false;
-                        var formatResult = lt.format(ts, timeDiff, label.data('time-label') || '#_default');
+                        var formatResult = lt.format(ts, timeDiff, duration, label.data('time-label') || '#_default');
                         if (formatResult.value !== null && typeof formatResult.value !== 'undefined') {
                             if (label.html()!==formatResult.value) {
                                 label.html(formatResult.value);
@@ -250,7 +266,7 @@
                             tsNextRefreshMs = Math.min(tsNextRefreshMs, formatResult.nextRefreshMs);
                         }
                         if (typeof label.data('time-tooltip') !== 'undefined') {
-                            formatResult = lt.format(ts, timeDiff, label.data('time-tooltip') || '#_default_tooltip');
+                            formatResult = lt.format(ts, timeDiff, duration, label.data('time-tooltip') || '#_default_tooltip');
                             if (formatResult.value !== null && typeof formatResult.value !== 'undefined') {
                                 if (label.attr('title') !== formatResult.value) {
                                     label.attr('title', formatResult.value);
@@ -396,74 +412,113 @@
         };
     };
 
-    lt.format = function(ts, timeDiff, format){
-        var partRegex = /\[?([a-z_]+)\]?/gim;
-        var value = [];
+    lt.getFormatExpression = function(ts, timeDiff, duration, format) {
         var nextRefreshMs = 60000;
-        var lastindex = 0;
-        var fmt = format;
-
-        if (format === null || format === 'null') {
-            return {};
-        }
-
-        if (typeof format == 'string' && format.slice(0,1) === '#') {
-            fmt = options.formats[format.slice(1)];
-            if (typeof fmt == 'undefined') {
-                throw new Error('time format not found: ' + format);
-            }
-        }
-        if (fmt instanceof Array) {
-            var fmtLength = fmt.length;
-            for (var i=0; i< fmtLength; i++) {
-                if (fmt[i].length === 1) {
-                    fmt = fmt[i][0];
-                    break;
-                } else if (fmt[i][0]*1000 >= timeDiff) {
-                    // refresh when format range changes
-                    nextRefreshMs = Math.min(nextRefreshMs, fmt[i][0]*1000 - timeDiff);
-                    fmt = fmt[i][1];
-                    break;
+        var format_expression = format;
+        if (format_expression === null || format_expression === 'null') {
+            format_expression = null;
+        } else {
+            if (typeof format_expression == 'string' && format_expression.slice(0,1) === '#') {
+                format_expression = options.formats[format_expression.slice(1)];
+                if (typeof format_expression == 'undefined') {
+                    throw new Error('time format not found: ' + format);
                 }
             }
-            if (fmt instanceof Array) {
-                fmt = '<unknown>';
+            if (format_expression instanceof Array) {
+                var fmtLength = format_expression.length;
+                for (var i=0; i< fmtLength; i++) {
+                    if (format_expression[i].length === 1) {
+                        format_expression = format_expression[i][0];
+                        break;
+                    } else {
+                        var rangeLimit = format_expression[i][0];
+                        if (typeof rangeLimit == 'string') {
+                            if (rangeLimit.slice(0,3) === 'end') {
+                                if (rangeLimit.length > 3) {
+                                    try {
+                                        rangeLimit = duration + parseInt(rangeLimit.slice(3), 10) * 1000;
+                                    } catch(err) {
+                                        log('error parsing format range: '+err);
+                                    }
+                                } else {
+                                    rangeLimit = duration;
+                                }
+                            }
+                        } else {
+                            rangeLimit = rangeLimit * 1000;
+                        }
+                        if (rangeLimit >= timeDiff) {
+                            // refresh when format range changes
+                            nextRefreshMs = Math.min(nextRefreshMs, rangeLimit - timeDiff);
+                            format_expression = format_expression[i][1];
+                            break;
+                        }
+                    }
+                }
+                if (format_expression instanceof Array) {
+                    format_expression = '<unknown>';
+                }
+            }
+            if (typeof format_expression == 'string' && format_expression.slice(0,1) === '#') {
+                return lt.getFormatExpression(ts, timeDiff, duration, format_expression);
             }
         }
-
-        if (fmt === null || fmt === 'null') {
-            return { nextRefreshMs: nextRefreshMs };
+        return {
+            expression: format_expression,
+            nextRefreshMs: nextRefreshMs
         }
+    };
 
-        var match = partRegex.exec(fmt);
-        while(match) {
-            value.push(fmt.slice(lastindex, match.index));
+    lt.format = function(ts, timeDiff, duration, format){
+        var partRegex = /\[?([a-z_]+)\]?/gim;
+        var value = [];
+        var lastindex = 0;
+        var fmt = lt.getFormatExpression(ts, timeDiff, duration, format);
+
+        if (fmt.expression === null) {
+            return fmt;
+        }
+        var match = partRegex.exec(fmt.expression);
+        while (match) {
+            value.push(fmt.expression.slice(lastindex, match.index));
             if (match[0].length != match[1].length){
                 value.push(match[1]);
             }else{
-                var formatPartResult = lt.formatPart(ts, timeDiff, match[0]);
+                var format_expression = match[0];
+                var ts_offset = 0;
+                if (format_expression.slice(0,4) === 'end_') {
+                    format_expression = format_expression.slice(4);
+                    ts_offset = duration;
+                }
+                var formatPartResult = lt.formatPart(ts + ts_offset, timeDiff - ts_offset, format_expression);
                 value.push(formatPartResult.value);
                 if (formatPartResult.nextRefreshMs){
-                    nextRefreshMs = Math.min(nextRefreshMs, formatPartResult.nextRefreshMs);
+                    fmt.nextRefreshMs = Math.min(fmt.nextRefreshMs, formatPartResult.nextRefreshMs);
                 }
             }
             lastindex = match.index + match[0].length;
-            match = partRegex.exec(fmt);
+            match = partRegex.exec(fmt.expression);
         }
-        value.push(fmt.slice(lastindex));
+        value.push(fmt.expression.slice(lastindex));
 
-        return {
-            value: value.join(''),
-            nextRefreshMs: nextRefreshMs
-        };
+        fmt.value = value.join('');
+        return fmt;
     };
 
     $.fn.livetime = function(enable){
         this.each(function(){
+            var elem = $(this);
+            if (!elem.is('.jlivetime-active')) {
+                // if element is an active livetime container, call livetime() on that container
+                var activeParent = $(this).parent('.jlivetime-active');
+                if (activeParent.length) {
+                    elem = activeParent;
+                }
+            }
             if (enable === false) {
-                lt.disable(this);
+                lt.disable(elem.get(0));
             } else {
-                lt.refresh(this);
+                lt.refresh(elem.get(0));
             }
         });
     };

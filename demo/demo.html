@@ -7,6 +7,10 @@
         <link rel="stylesheet" href="style.css">
         <script src="../vendor/jquery-1.8.2.js"></script>
         <script src="../src/jlivetime.js"></script>
+        <script type="text/javascript">
+            // little hack to enable html5 tags in old browsers
+            document.createElement('time');
+        </script>
     </head>
     <body>
         <a href="https://github.com/benjamine/jLiveTime" id="fork_me">
@@ -35,50 +39,62 @@
         </div>
         <div class="examples">
             <div>
-                <!-- using span instead of time for IE8 compatibility -->
-                <span datetime="2012-11-16T10:43:50Z" data-time-label="#fulldate" data-time-tooltip>loading</span> <a class="removedatetime" href="javascript:void(0);">remove</a>
+                <time datetime="2012-11-16T10:43:50Z" data-time-label="#fulldate" data-time-tooltip>loading</time> <a class="removedatetime" href="javascript:void(0);">remove</a>
             </div>
             <div>
-                <span datetime="2012-11-16T10:43:50Z" data-time-label="#shortdate" data-time-tooltip>loading</span> <a class="removedatetime" href="javascript:void(0);">remove</a>
+                <time datetime="2012-11-16T10:43:50Z" data-time-label="#shortdate" data-time-tooltip>loading</time> <a class="removedatetime" href="javascript:void(0);">remove</a>
             </div>
             <div>
-                <span datetime="2012-11-16T10:43:50Z" data-time-label="eeee d at H:mm" data-time-tooltip>loading</span> <a class="removedatetime" href="javascript:void(0);">remove</a>
+                <time datetime="2012-11-16T10:43:50Z" data-time-label="eeee d at H:mm" data-time-tooltip>loading</time> <a class="removedatetime" href="javascript:void(0);">remove</a>
             </div>
             <div>
-                <span datetime="2012-11-16T10:43:50Z" data-time-tooltip>
+                <time datetime="2012-11-16T10:43:50Z" data-time-tooltip>
                     <span data-time-label="#_in"></span>
                     <span data-time-label="td_h" class="number"></span> hours, 
                     <span data-time-label="d_mm" class="number"></span> minutes
                     <span data-time-label="d_ss" class="number"></span> seconds
                     <span data-time-label="#ago"></span>
-                </span> <a class="removedatetime" href="javascript:void(0);">remove</a>
+                </time> <a class="removedatetime" href="javascript:void(0);">remove</a>
             </div>
             <div>
-                <span datetime="2012-11-16T10:43:50Z" data-time-label data-time-tooltip>loading</span> <a class="removedatetime" href="javascript:void(0);">remove</a>
+                <time datetime="2012-11-16T10:43:50Z" data-time-label data-time-tooltip>loading</time> <a class="removedatetime" href="javascript:void(0);">remove</a>
             </div>
             <div>
-                <span datetime="2012-11-16T10:43:50Z" data-time-label="#humanized" data-time-tooltip>loading</span> <a class="removedatetime" href="javascript:void(0);">remove</a>
+                <time datetime="2012-11-16T10:43:50Z" data-time-label="#humanized" data-time-tooltip>loading</time> <a class="removedatetime" href="javascript:void(0);">remove</a>
             </div>
             <div>
-                <span datetime="2012-11-16T10:43:50Z" data-time-label="#milliseconds" data-time-tooltip>loading</span> <a class="removedatetime" href="javascript:void(0);">remove</a>
+                <time datetime="2012-11-16T10:43:50Z" data-time-label="#milliseconds" data-time-tooltip>loading</time> <a class="removedatetime" href="javascript:void(0);">remove</a>
             </div>
             <div>
-                <span datetime="2012-11-16T10:43:50Z" data-time-label="#custom" data-time-tooltip>loading</span> <a class="removedatetime" href="javascript:void(0);">remove</a>
+                <time datetime="2012-11-16T10:43:50Z" data-duration="12000" data-time-label="#customwithduration" data-time-tooltip>loading</time> <a class="removedatetime" href="javascript:void(0);">remove</a>
             </div>
             <div>
-                <span datetime="2012-11-16T10:43:50Z" data-time-label="#custom2" data-time-tooltip>loading</span> <a class="removedatetime" href="javascript:void(0);">remove</a>
+                <time datetime="2012-11-16T10:43:50Z" data-time-label="#custom" data-time-tooltip>loading</time> <a class="removedatetime" href="javascript:void(0);">remove</a>
             </div>
             <div>
-                <span datetime="2012-11-16T10:43:50Z" data-time-label="#custom3" data-time-tooltip>loading</span> <a class="removedatetime" href="javascript:void(0);">remove</a>
+                <time datetime="2012-11-16T10:43:50Z" data-time-label="#custom2" data-time-tooltip>loading</time> <a class="removedatetime" href="javascript:void(0);">remove</a>
+            </div>
+            <div>
+                <time datetime="2012-11-16T10:43:50Z" data-time-label="#custom3" data-time-tooltip>loading</time> <a class="removedatetime" href="javascript:void(0);">remove</a>
             </div>
         </div>
         <div class="localtimeoffsetinfo">
-            your machine clock is <span class="localtimeoffsetseconds">0</span> seconds off
+            your machine clock is <time class="localtimeoffsetseconds">0</time> seconds off
         </div>
         <script type="text/javascript">
             $(function() {
 
                 $.livetime.options.serverTimeUrl = 'empty.txt';
+
+                $.livetime.options.formats.customwithduration = [
+                    [-20, '#fulldate'],
+                    [-5, 'will start in a few seconds'],
+                    [0, 'will start in less than 5 seconds'],
+                    ['end-5', 'playing (end_td_s seconds remaining)'],
+                    ['end', 'playing (about to finish)'],
+                    ['end+60', 'finished'],
+                    ['finished (end_td_m minutes ago)']
+                ];
 
                 $.livetime.options.formats.custom = [
                     [-120, 'td_m minutes remaining'],
@@ -99,7 +115,7 @@
 
                 var bars = [];
                 for (var i=-30; i<30; i++) {
-                    bars.push([i, new Array(Math.abs(i)).join(i>0 ? '*':'#')]);
+                    bars.push([i, new Array(Math.abs(i)).join(i>0 ? '*':'@')]);
                 }
                 bars.push(['END']);
                 $.livetime.options.formats.custom2 = bars;

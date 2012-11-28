@@ -49,7 +49,7 @@ Usage
 HTML
 
 ``` html
-	
+
 	<!-- standard html5 format -->
 	<time datetime="2012-11-15T18:23:00.000Z" data-time-label data-time-tooltip>November 15, at 18:23 (GMT)</time>
 
@@ -115,7 +115,7 @@ Note: to escape words in a format expresion wrap it with brackes, eg. This [mm] 
 To avoid duplicating a format expression in all time elements you can create named formats.
 
 ``` javascript
-	
+
 	$.livetime.options.formats.shortDate = 'MMM d';
 	$.livetime.options.formats.fullDate = 'eeee MMMM d yyyy';
 
@@ -124,7 +124,7 @@ To avoid duplicating a format expression in all time elements you can create nam
 Then you can use it like this:
 
 ``` html
-	
+
 	<time datetime="2012-11-15T18:23Z" data-time-label="#shortDate" data-time-tooltip="#fullDate"/>
 
 ```
@@ -136,9 +136,9 @@ When no format is specified _default and _default_tooltip formats are used.
 Named formats can be specified using ranges, to switch format expression based on seconds from/to timestamp
 
 ``` javascript
-	
+
     $.livetime.options.formats.humanized = [
-        [-360*24*3600, 'MMMM d, yyyy'],
+        [-360*24*3600, '#fulldate'],
         [-6*24*3600, 'MMMM d at h:mm tt'],
         [- 48*3600, 'eeee at h:mm tt'],
         [-24*3600, 'Tomorrow at h:mm tt'],
@@ -155,7 +155,37 @@ Named formats can be specified using ranges, to switch format expression based o
         [48*3600, 'Yesterday at h:mm tt'],
         [6*24*3600, 'eeee at h:mm tt'],
         [360*24*3600, 'MMMM d at h:mm tt'],
-        ['MMMM d, yyyy']
+        ['#fulldate']
+    ];
+
+```
+
+Events with Duration
+----------------
+
+You can add a duration to indicate an event has a duration, allowing you to use the end time (datetime + duration) in your format expression, example:
+
+``` html
+
+    <time datetime="2012-11-15T18:23:00.000Z" data-duration="600000" data-time-label="started td_s seconds ago, end_td_s seconds remaining" data-time-tooltip></time>
+
+```
+
+- data-duration attribute contains duration in milliseconds
+- to use end time, add ```end_``` prefix to any format expression (end_ss, end_d_s, end_dt_s, etc.)
+
+Format ranges can use the end time as reference to:
+
+``` javascript
+
+    $.livetime.options.formats.customwithduration = [
+        [-20, '#fulldate'],
+        [-5, 'will start in a few seconds'],
+        [0, 'will start in less than 5 seconds'],
+        ['end-5', 'playing (end_td_s seconds remaining)'],
+        ['end', 'playing (about to finish)'],
+        ['end+60', 'finished'],
+        ['finished (end_td_m minutes ago)']
     ];
 
 ```
