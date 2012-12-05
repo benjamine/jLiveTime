@@ -6,7 +6,7 @@
 (function($){
 
     var lt = $.livetime = $.livetime || {};
-    lt.version = '0.0.4';
+    lt.version = '0.0.6';
 
     lt.localTimeOffset = null;
     var options = lt.options = lt.options || {};
@@ -140,7 +140,7 @@
             var match = datetimeRegex.exec(str);
             var timezoneOffset = 0;
             if (match) {
-                if (typeof match[4] == 'undefined') {
+                if (typeof match[4] == 'undefined' || match[4] === '' || match[4] === null) {
                     return new Date(Date.UTC(parseInt(match[1]), parseInt(match[2])-1, parseInt(match[3])));
                 }
                 if (match[8] && match[8] !== 'Z' && match[8] !== 'GMT' && match[8] !== 'UTC') {
@@ -412,7 +412,7 @@
                 switch (match[3]) {
                     case 'y':
                         return {
-                            value: padLeft(date.getYear() + 1900, match[2].length)
+                            value: padLeft(date.getFullYear(), match[2].length)
                         };
                     case 'M':
                         // use name if length > 2
