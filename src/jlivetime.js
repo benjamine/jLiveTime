@@ -122,6 +122,87 @@
             function(){ console.log.call(console, arguments); } :
             function(){};
 
+    var datetimeRegex = /^(\d{4})\-(\d{2})\-(\d{2})(?:[ T](\d{2}):(\d{2}):(\d{2})(?:\.(\d+))?(.*))?$/;
+    var timezoneRegex = /^([+\-]?)(\d{2}):(\d{2})$/;
+
+    // alternative strin date parsers, the first supported by browser will be used
+    var dateStringParsers = [
+        // use native constructor (fastest)
+        function(str) {
+            return new Date(str);
+        },
+        // use native constructor, allowing space instead of T
+        function(str) {
+            return new Date(str.slice(10,11)!==' ' ? str : str.slice(0,10) + 'T' + str.slice(11));
+        },
+        // use regex (slowest, but safe)
+        function(str) {
+            var match = datetimeRegex.exec(str);
+            var timezoneOffset = 0;
+            if (match) {
+                if (typeof match[4] == 'undefined') {
+                    return new Date(Date.UTC(parseInt(match[1]), parseInt(match[2])-1, parseInt(match[3])));
+                }
+                if (match[8] && match[8] !== 'Z' && match[8] !== 'GMT' && match[8] !== 'UTC') {
+                    var timezoneMatch = timezoneRegex.exec(match[8]);
+                    if (timezoneMatch) {
+                        timezoneOffset = (timezoneMatch[0] === '-' ? -1 : 1) * (parseInt(timezoneMatch[2]) * 60 + parseInt(timezoneMatch[3])) * 60000;
+                    } else {
+                        throw new Error('invalid datetime format');
+                    }
+                }
+                return new Date(Date.UTC(parseInt(match[1]), parseInt(match[2])-1, parseInt(match[3]),
+                    parseInt(match[4]), parseInt(match[5]), parseInt(match[6]), match[7] ? parseInt(match[7]) : 0) + timezoneOffset);
+            }
+            throw new Error('invalid datetime format');
+        }
+    ];
+    var validDateStringParser = dateStringParsers[dateStringParsers.length-1];
+
+    var detectValidDateParser = function(){
+        var valid = false;
+        var index = 0;
+        var tests = {};
+        tests['2012-12-04 23:59:59.999Z'] = Date.UTC(2012,11,4,23,59,59,999);
+        tests['2012-01-31T00:54:02'] = Date.UTC(2012,0,31,0,54,2);
+        tests['2012-12-22T18:30:00-03:00'] = Date.UTC(2012,11,22,21,30,0);
+        tests['1987-02-28'] = Date.UTC(1987,1,28);
+
+        while (!valid && index < dateStringParsers.length) {
+            try {
+                valid = true;
+                for (var str in tests) {
+                    if (tests[str] !== dateStringParsers[index](str).getTime()) {
+                        valid = false;
+                        break;
+                    }
+                }
+                if (valid) {
+                    validDateStringParser = dateStringParsers[index];
+                }
+            } catch(err) {
+                valid = false;
+            }
+            if (!valid) {
+                index++;
+            }
+        }
+    };
+
+    detectValidDateParser();
+
+    lt.parseDate = function(timestamp) {
+        if (typeof str == 'number' || /^[0-9]+$/.test(timestamp)) {
+            return new Date(parseInt(timestamp,10));
+        } else {
+            try {
+                return validDateStringParser(timestamp);
+            } catch(err) {
+                throw new Error('error parsing datetime "' + timestamp + '": ' + err);
+            }
+        }
+    };
+
     lt.now = function(){
         if (lt.localTimeOffset === null){
             // local time offset unknown yet
@@ -222,7 +303,7 @@
                 var ts;
                 try {
                     if (tsString.indexOf('-') > 0) {
-                        var date = new Date(tsString);
+                        var date = lt.parseDate(tsString);
                         ts = date.getTime() - date.getTimezoneOffset() * 60000;
                     } else {
                         ts = parseInt(tsString, 10);
