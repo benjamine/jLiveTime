@@ -6,7 +6,7 @@
 (function($){
 
     var lt = $.livetime = $.livetime || {};
-    lt.version = '0.0.7';
+    lt.version = '0.0.8';
 
     lt.localTimeOffset = null;
     var options = lt.options = lt.options || {};
