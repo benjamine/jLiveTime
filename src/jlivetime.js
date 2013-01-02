@@ -6,7 +6,7 @@
 (function($){
 
     var lt = $.livetime = $.livetime || {};
-    lt.version = '0.0.6';
+    lt.version = '0.0.7';
 
     lt.localTimeOffset = null;
     var options = lt.options = lt.options || {};
@@ -22,14 +22,14 @@
         [-24*3600*30, 'in td_M months d_d days, MMMM d at H:mm'],
         [-24*3600*7, 'in td_d days, MMMM d at H:mm'],
         [-24*3600*2, 'next eeee, MMMM d at H:mm'],
-        [-2*3600, 'in td_h hours d_m minutes, today at H:mm'],
+        [-2*3600, 'in td_h hours d_m minutes, at H:mm'],
         [-60*5, 'in td_m minutes, at H:mm:ss'],
         [-60, 'in td_m minutes d_s seconds, at H:mm:ss'],
         [0, 'in td_s seconds, at H:mm:ss'],
         [60, 'td_s seconds ago, at H:mm:ss'],
         [60*5, 'td_m minutes d_s seconds ago, at H:mm:ss'],
         [2*3600, 'td_m minutes ago, at H:mm:ss'],
-        [24*3600*2 , 'td_h hours d_m minutes ago, today at H:mm'],
+        [24*3600*2 , 'td_h hours d_m minutes ago, at H:mm'],
         [24*3600*7 , 'last eeee, MMMM d at H:mm'],
         [24*3600*30, 'MMMM d at H:mm'],
         ['yyyy MMMM d at H:mm']
@@ -45,8 +45,7 @@
     options.formats.humanized = options.formats.humanized || [
         [-360*24*3600, 'MMMM d, yyyy'],
         [-6*24*3600, 'MMMM d at h:mm tt'],
-        [- 48*3600, 'eeee at h:mm tt'],
-        [-24*3600, 'Tomorrow at h:mm tt'],
+        [-48*3600, 'eeee at h:mm tt'],
         [-7200, 'in td_h hours'],
         [-3600, 'in about an hour'],
         [-120, 'in td_m minutes'],
@@ -57,8 +56,7 @@
         [3600, 'td_m minutes ago'],
         [7200, 'about an hour ago'],
         [24*3600, 'td_h hours ago'],
-        [48*3600, 'Yesterday at h:mm tt'],
-        [6*24*3600, 'eeee at h:mm tt'],
+        [48*3600, 'eeee at h:mm tt'],
         [360*24*3600, 'MMMM d at h:mm tt'],
         ['MMMM d, yyyy']
     ];
@@ -140,6 +138,13 @@
             var match = datetimeRegex.exec(str);
             var timezoneOffset = 0;
             if (match) {
+                // remove leading zeros
+                for (var i=1; i < 8; i++) {
+                    var matchString = match[i];
+                    if (typeof matchString == 'string' && matchString.length > 1 && matchString.slice(0,1) === '0') {
+                        match[i] = matchString.slice(0,-1).replace(/^0+/, '') + matchString.slice(-1);
+                    }
+                }
                 if (typeof match[4] == 'undefined' || match[4] === '' || match[4] === null) {
                     return new Date(Date.UTC(parseInt(match[1]), parseInt(match[2])-1, parseInt(match[3])));
                 }
