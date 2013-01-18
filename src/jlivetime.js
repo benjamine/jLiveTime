@@ -6,67 +6,74 @@
 (function($){
 
     var lt = $.livetime = $.livetime || {};
-    lt.version = '0.0.8';
+    lt.version = '0.0.10';
 
     lt.localTimeOffset = null;
-    var options = lt.options = lt.options || {};
-    options.datetimeSelector = '[datetime]';
-    options.datetimeAttribute = 'datetime';
-    options.durationAttribute = 'data-duration';
-    options.dateLabelSelector = '[data-time-label]';
-    options.triggerRefreshComplete = true;
-    options.serverTimeUrl = null; //'empty.txt';
-    options.formats = options.formats || {};
-    options.formats._default = options.formats._default || [
-        [-24*3600*30*11, 'yyyy MMMM d at H:mm'],
-        [-24*3600*30, 'in td_M months d_d days, MMMM d at H:mm'],
-        [-24*3600*7, 'in td_d days, MMMM d at H:mm'],
-        [-24*3600*2, 'next eeee, MMMM d at H:mm'],
-        [-2*3600, 'in td_h hours d_m minutes, at H:mm'],
-        [-60*5, 'in td_m minutes, at H:mm:ss'],
-        [-60, 'in td_m minutes d_s seconds, at H:mm:ss'],
-        [0, 'in td_s seconds, at H:mm:ss'],
-        [60, 'td_s seconds ago, at H:mm:ss'],
-        [60*5, 'td_m minutes d_s seconds ago, at H:mm:ss'],
-        [2*3600, 'td_m minutes ago, at H:mm:ss'],
-        [24*3600*2 , 'td_h hours d_m minutes ago, at H:mm'],
-        [24*3600*7 , 'last eeee, MMMM d at H:mm'],
-        [24*3600*30, 'MMMM d at H:mm'],
-        ['yyyy MMMM d at H:mm']
-    ];
-    options.formats.seconds = options.formats.seconds || [
-        [0, 'in td_hh:d_mm:d_ss'],
-        ['td_hh:d_mm:d_ss ago']
-    ];
-    options.formats.milliseconds = options.formats.milliseconds || [
-        [0, 'in td_hh:d_mm:d_ss.d_fff'],
-        ['td_hh:d_mm:d_ss.d_fff ago']
-    ];
-    options.formats.humanized = options.formats.humanized || [
-        [-360*24*3600, 'MMMM d, yyyy'],
-        [-6*24*3600, 'MMMM d at h:mm tt'],
-        [-48*3600, 'eeee at h:mm tt'],
-        [-7200, 'in td_h hours'],
-        [-3600, 'in about an hour'],
-        [-120, 'in td_m minutes'],
-        [-60, 'in about a minute'],
-        [0, 'in a few seconds'],
-        [60, 'a few seconds ago'],
-        [120, 'about a minute ago'],
-        [3600, 'td_m minutes ago'],
-        [7200, 'about an hour ago'],
-        [24*3600, 'td_h hours ago'],
-        [48*3600, 'eeee at h:mm tt'],
-        [360*24*3600, 'MMMM d at h:mm tt'],
-        ['MMMM d, yyyy']
-    ];
-    options.formats.fulldate = options.formats.fulldate || 'eee MMM d yyyy at h:mm:ss tt';
-    options.formats.shortdate = options.formats.shortdate || 'MMM d yyyy';
-    options.formats._default_tooltip = options.formats.fulldate;
-    options.formats._in = options.formats._in || [[0,'in'],['']];
-    options.formats.remaining = options.formats.remaining || [[0,'remaining'],['']];
-    options.formats.ago = options.formats.ago || [[0,''],['ago']];
-    options.formats.elapsed = options.formats.elapsed || [[0,''],['elapsed']];
+
+    var defaultOptions = {
+        datetimeSelector: '[datetime]',
+        datetimeAttribute: 'datetime',
+        durationAttribute: 'data-duration',
+        dateLabelSelector: '[data-time-label]',
+        triggerRefreshComplete: true,
+        serverTimeUrl: null,
+        autostart: false
+    };
+    var defaultFormats = {
+        _default: [
+                [-24*3600*30*11, 'yyyy MMMM d at H:mm'],
+                [-24*3600*30, 'in td_M months d_d days, MMMM d at H:mm'],
+                [-24*3600*7, 'in td_d days, MMMM d at H:mm'],
+                [-24*3600*2, 'next eeee, MMMM d at H:mm'],
+                [-2*3600, 'in td_h hours d_m minutes, at H:mm'],
+                [-60*5, 'in td_m minutes, at H:mm:ss'],
+                [-60, 'in td_m minutes d_s seconds, at H:mm:ss'],
+                [0, 'in td_s seconds, at H:mm:ss'],
+                [60, 'td_s seconds ago, at H:mm:ss'],
+                [60*5, 'td_m minutes d_s seconds ago, at H:mm:ss'],
+                [2*3600, 'td_m minutes ago, at H:mm:ss'],
+                [24*3600*2 , 'td_h hours d_m minutes ago, at H:mm'],
+                [24*3600*7 , 'last eeee, MMMM d at H:mm'],
+                [24*3600*30, 'MMMM d at H:mm'],
+                ['yyyy MMMM d at H:mm']
+            ],
+        seconds: [
+            [0, 'in td_hh:d_mm:d_ss'],
+            ['td_hh:d_mm:d_ss ago']
+        ],
+        milliseconds: [
+            [0, 'in td_hh:d_mm:d_ss.d_fff'],
+            ['td_hh:d_mm:d_ss.d_fff ago']
+        ],
+        humanized: [
+            [-360*24*3600, 'MMMM d, yyyy'],
+            [-6*24*3600, 'MMMM d at h:mm tt'],
+            [-48*3600, 'eeee at h:mm tt'],
+            [-7200, 'in td_h hours'],
+            [-3600, 'in about an hour'],
+            [-120, 'in td_m minutes'],
+            [-60, 'in about a minute'],
+            [0, 'in a few seconds'],
+            [60, 'a few seconds ago'],
+            [120, 'about a minute ago'],
+            [3600, 'td_m minutes ago'],
+            [7200, 'about an hour ago'],
+            [24*3600, 'td_h hours ago'],
+            [48*3600, 'eeee at h:mm tt'],
+            [360*24*3600, 'MMMM d at h:mm tt'],
+            ['MMMM d, yyyy']
+        ],
+        fulldate: 'eee MMM d yyyy at h:mm:ss tt',
+        shortdate: 'MMM d yyyy',
+        _default_tooltip: '#fulldate',
+        _in: [[0,'in'],['']],
+        remaining: [[0,'remaining'],['']],
+        ago: [[0,''],['ago']],
+        elapsed: [[0,''],['elapsed']]
+    };
+
+    var options = lt.options = $.extend(true, defaultOptions, lt.options);
+    options.formats = $.extend(defaultFormats, options.formats);
 
     var padLeft = function(num, digits) {
         if (digits < 2) {
@@ -249,7 +256,6 @@
                 // offset not obtained yet, calculate with an ajax request
                 $.ajax({
                     url: options.serverTimeUrl,
-                    method: 'jsonp',
                     cache: false,
                     success: function (data, status, req) {
                         // local time
@@ -608,5 +614,11 @@
             }
         });
     };
+
+    $(function(){
+        if (lt.options.autostart) {
+            $(lt.options.autostart.selector || 'body').livetime();
+        }
+    });
 
 })(jQuery);
