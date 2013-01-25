@@ -6,7 +6,7 @@
 (function($){
 
     var lt = $.livetime = $.livetime || {};
-    lt.version = '0.0.10';
+    lt.version = '0.0.11';
 
     lt.localTimeOffset = null;
 
@@ -453,7 +453,8 @@
                         };
                     case 'h':
                         return {
-                            value: padLeft(date.getHours() > 12 ? date.getHours() - 12 : date.getHours(), match[2].length)
+                            value: padLeft(date.getHours() > 12 ? date.getHours() - 12 : 
+                                 (date.getHours() === 0 ? 12 : date.getHours()), match[2].length)
                         };
                     case 'H':
                         return {
