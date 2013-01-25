@@ -6,7 +6,7 @@
 (function($){
 
     var lt = $.livetime = $.livetime || {};
-    lt.version = '0.0.11';
+    lt.version = '0.0.12';
 
     lt.localTimeOffset = null;
 
@@ -453,7 +453,7 @@
                         };
                     case 'h':
                         return {
-                            value: padLeft(date.getHours() > 12 ? date.getHours() - 12 : 
+                            value: padLeft(date.getHours() > 12 ? date.getHours() - 12 :
                                  (date.getHours() === 0 ? 12 : date.getHours()), match[2].length)
                         };
                     case 'H':
@@ -559,7 +559,7 @@
         return {
             expression: format_expression,
             nextRefreshMs: nextRefreshMs
-        }
+        };
     };
 
     lt.format = function(ts, timeDiff, duration, format){
