@@ -190,6 +190,28 @@ Format ranges can use the end time as reference to:
 
 ```
 
+Day-start/end relative ranges
+----------------
+
+There are a few cases where you want to specify a format relative to the start or end of the day where the event occurs. An example of this is when you want to show captions like "Today", "Tomorrow", "Yesterday".
+
+This can be specified like this:
+
+``` javascript
+
+    $.livetime.options.formats.humanRelative = [
+        [-360*24*3600, 'MMMM d, yyyy'],
+        ['daystart-'+7*24*3600, 'MMMM d at h:mm tt'],
+        ['daystart-'+24*3600, 'next eeee at h:mm tt'],
+        ['daystart', 'tomorrow at h:mm tt'],
+        ['dayend', 'today at h:mm tt'],
+        ['dayend+'+24*3600, 'yesterday at h:mm tt'],
+        ['dayend+'+7*24*3600, 'last eeee at h:mm tt'],
+        [360*24*3600, 'MMMM d at h:mm tt'],
+        ['MMMM d, yyyy']
+    ];
+```
+
 Sync with Server Time
 ----------------
 

@@ -38,6 +38,7 @@
             </div>
         </div>
         <div class="examples">
+            <h2>Examples</h2>
             <div>
                 <time datetime="2012-11-16T10:43:50Z" data-time-label="#fulldate" data-time-tooltip>loading</time> <a class="removedatetime" href="javascript:void(0);">remove</a>
             </div>
@@ -77,6 +78,28 @@
             <div>
                 <time datetime="2012-11-16T10:43:50Z" data-time-label="#custom3" data-time-tooltip>loading</time> <a class="removedatetime" href="javascript:void(0);">remove</a>
             </div>
+            <h2>Live Test</h2>
+            <div class="livetest">
+                format expression: <input class="livetest-input" type="text" value="td_hh:d_mm:d_ss"><br/>
+                <time datetime="2012-11-16T10:43:50Z" data-time-label="#livetest" data-time-tooltip>loading</time>
+                <div class="format-help">
+                    <ul>
+                        <li>Year: yyyy => 2012</li>
+                        <li>Month: M, MM, MMM, MMMM => 2, 02, Feb, February</li>
+                        <li>Day of Month: d, dd => 8, 08</li>
+                        <li>Weekday: e, ee, eee, eeee => 3, We, Wed, Wednesday</li>
+                        <li>Hours: h, hh, H, HH => 1, 01, 13, 13</li>
+                        <li>Minutes: m, mm => 9, 09</li>
+                        <li>Seconds: s, ss => 5, 05</li>
+                        <li>Milliseconds: f, ff, fff => 2, 02, 002</li>
+                        <li>am/pm: t, tt => p, pm</li>
+                        <li><b>d_*</b> distance</li>
+                        <li><b>td_*</b> total distance</li>
+                        <li><b>end_d_*</b> distance to end time</li>
+                        <li><b>end_td_*</b> total distance to end time</li>
+                    </ul>
+                </div>
+            </div>
         </div>
         <div class="localtimeoffsetinfo">
             your machine clock is <time class="localtimeoffsetseconds">0</time> seconds off
@@ -85,6 +108,8 @@
             $(function() {
 
                 $.livetime.options.serverTimeUrl = 'empty.txt';
+
+                $.livetime.options.formats.livetest = "td_hh:d_mm:d_ss";
 
                 $.livetime.options.formats.customwithduration = [
                     [-20, '#fulldate'],
@@ -160,6 +185,12 @@
                 $('.examples .removedatetime').click(function(){
                     $(this).parent().remove();
                 });
+
+                $('.livetest-input').on('change, keyup', function(){
+                    $.livetime.options.formats.livetest = $(this).val();
+                    $('.livetest time').livetime();
+                });
+
             });
         </script>
         <footer>

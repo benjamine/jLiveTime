@@ -47,9 +47,10 @@
         ],
         humanized: [
             [-360*24*3600, 'MMMM d, yyyy'],
-            [-6*24*3600, 'MMMM d at h:mm tt'],
-            [-48*3600, 'eeee at h:mm tt'],
-            [-7200, 'in td_h hours'],
+            ['daystart-'+7*24*3600, 'MMMM d at h:mm tt'],
+            ['daystart-'+24*3600, 'next eeee at h:mm tt'],
+            ['daystart', 'tomorrow at h:mm tt'],
+            [-7200, 'today at h:mm tt'],
             [-3600, 'in about an hour'],
             [-120, 'in td_m minutes'],
             [-60, 'in about a minute'],
@@ -58,8 +59,10 @@
             [120, 'about a minute ago'],
             [3600, 'td_m minutes ago'],
             [7200, 'about an hour ago'],
-            [24*3600, 'td_h hours ago'],
-            [48*3600, 'eeee at h:mm tt'],
+            [5*3600, 'td_h hours ago'],
+            ['dayend', 'today at h:mm tt'],
+            ['dayend+'+24*3600, 'yesterday at h:mm tt'],
+            ['dayend+'+7*24*3600, 'last eeee at h:mm tt'],
             [360*24*3600, 'MMMM d at h:mm tt'],
             ['MMMM d, yyyy']
         ],
@@ -346,7 +349,13 @@
                         var label = $(this);
                         var htmlChanged = false;
                         var tooltipChanged = false;
-                        var formatResult = lt.format(ts, timeDiff, duration, label.data('time-label') || '#_default');
+                        var formatResult;
+                        try {
+                            formatResult = lt.format(ts, timeDiff, duration, label.data('time-label') || '#_default');
+                        } catch (error) {
+                            log('error updating time label: ' + error);
+                            formatResult = { value: '-', nextRefreshMs: 60000 };
+                        }
                         if (formatResult.value !== null && typeof formatResult.value !== 'undefined') {
                             if (label.html()!==formatResult.value) {
                                 label.html(formatResult.value);
@@ -517,6 +526,8 @@
                     throw new Error('time format not found: ' + format);
                 }
             }
+            var localTs = ts + new Date().getTimezoneOffset() * 60 * 1000;
+            var dayStartLimit, dayEndLimit;
             if (format_expression instanceof Array) {
                 var fmtLength = format_expression.length;
                 for (var i=0; i< fmtLength; i++) {
@@ -526,16 +537,36 @@
                     } else {
                         var rangeLimit = format_expression[i][0];
                         if (typeof rangeLimit == 'string') {
-                            if (rangeLimit.slice(0,3) === 'end') {
-                                if (rangeLimit.length > 3) {
-                                    try {
-                                        rangeLimit = duration + parseInt(rangeLimit.slice(3), 10) * 1000;
-                                    } catch(err) {
-                                        log('error parsing format range: '+err);
-                                    }
-                                } else {
-                                    rangeLimit = duration;
+                            var limitParameters = /^([\w_]+)([+\-]\d+)?/i.exec(rangeLimit);
+                            if (!limitParameters) {
+                                log('error parsing format range: ' + rangeLimit);
+                                return {
+                                    nextRefreshMs: 1000,
+                                    format_expression: '-'
                                 }
+                            }
+                            var limitKeyword = limitParameters[1];
+                            if (limitKeyword === 'end') {
+                                rangeLimit = duration;
+                            } else if (limitKeyword === 'daystart') {
+                                if (!dayStartLimit) {
+                                    dayStartLimit = new Date(localTs).setHours(0, 0, 0, 0) - localTs;
+                                }
+                                rangeLimit = dayStartLimit;
+                            } else if (limitKeyword === 'dayend') {
+                                if (!dayEndLimit) {
+                                    dayEndLimit = new Date(localTs).setHours(23, 59, 59, 999) - localTs;
+                                }
+                                rangeLimit = dayEndLimit;
+                            } else {
+                                log('error parsing format range, unknown keyword: ' + limitKeyword);
+                                return {
+                                    nextRefreshMs: 1000,
+                                    format_expression: '-'
+                                }
+                            }
+                            if (limitParameters[2]) {
+                                rangeLimit += parseInt(limitParameters[2], 10) * 1000;
                             }
                         } else {
                             rangeLimit = rangeLimit * 1000;
