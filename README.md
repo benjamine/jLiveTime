@@ -102,7 +102,7 @@ To display time difference to current time (time elapsed, or time remaining) use
 - d_s => seconds in difference (remaining or upcoming) from/to timestamp
 - td_s => total seconds from/to timestamp
 - d_fff => milliseconds in difference using 3 digits (add leading zeros)
-- td_w => total months from/to timestamp
+- td_w => total weeks from/to timestamp
 
 Years: y, Months: M, Weeks: w, Days: d, Hours: h, Minutes: m, Seconds: s, Milliseconds: f
 
