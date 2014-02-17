@@ -6,7 +6,7 @@
 (function($){
 
     var lt = $.livetime = $.livetime || {};
-    lt.version = '0.0.12';
+    lt.version = '0.0.13';
 
     lt.localTimeOffset = null;
 
@@ -241,7 +241,7 @@
             // get milliseconds of time diff between server and client. positive means client ahead
             lt.localTimeOffsetRequested = true;
             lt.localTimeOffset = 0;
-            
+
             var storedOffset = null;
             if (window.sessionStorage) {
                 storedOffset = window.sessionStorage.getItem('jlivetime-localtimeoffset');
@@ -428,7 +428,7 @@
         if (match) {
             if (!match[1]) {
                 // regular date format
-                var date = new Date(ts + new Date().getTimezoneOffset()*60*1000);
+                var date = new Date(ts + new Date(ts).getTimezoneOffset()*60*1000);
                 switch (match[3]) {
                     case 'y':
                         return {
