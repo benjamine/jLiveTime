@@ -1,0 +1,30 @@
+{
+  "name": "jLiveTime",
+  "version": "0.0.13",
+  "homepage": "https://github.com/benjamine/jLiveTime",
+  "authors": [
+    "Benjamin Eidelman <beneidel@gmail.com>"
+  ],
+  "description": "jQuery plugin for live timestamps, countdowns, time-ago, and timers",
+  "main": "src/jlivetime.js",
+  "keywords": [
+    "time",
+    "countdown",
+    "timer",
+    "time",
+    "date",
+    "datetime",
+    "timestamp",
+    "jquery"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "vendor",
+    "demo",
+    "test",
+    "tests"
+  ]
+}
