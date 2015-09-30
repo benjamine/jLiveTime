@@ -10,7 +10,7 @@ Features
 - Updates automatically, no performance-costly polling, content is updated only when needed
 - Supports standard html5 format ```<time datetime="">```. A different attribute name can be used
 - Specify multiple formats per-range to switch automatically between date, time, countdown, time-ago or any custom format using the same html
-- Allows you to cache your html aggresively (it's completely independent of page generation time)
+- Allows you to cache your html aggressively (it's completely independent of page generation time)
 - Show time in local timezone
 - Use different formatting for element html and tooltip
 - Milliseconds accuracy
